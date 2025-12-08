@@ -1,6 +1,6 @@
 /**
- * Manages the file system state and operations.
- * Separates business logic from user interface.
+ * Manages the file system state and operations
+ * Separates business logic from user interface
  */
 public class FileSystem {
     final private Directory root;
@@ -20,8 +20,8 @@ public class FileSystem {
     }
 
     /**
-     * Returns the full path of the current working directory.
-     * Uses a stack to build the path from bottom to top.
+     * Returns the full path of the current working directory
+     * Uses a stack to build the path from bottom to top
      */
     public String pwd() {
         if (currentDirectory == root) {
@@ -45,7 +45,7 @@ public class FileSystem {
     }
 
     /**
-     * Creates a directory.  Supports -p flag for creating parent directories.
+     * Creates a directory, supports -p flag for creating parent directories
      */
     public void mkdir(String path, boolean createParents) throws FileSystemException {
         if (createParents) {
@@ -84,19 +84,35 @@ public class FileSystem {
     }
 
     /**
-     * Creates a file with the given name and size.
+     * Creates a file with the given name and size
      */
     public void touch(String name, int size) throws FileSystemException {
         if (currentDirectory.hasChild(name)) {
             throw new FileSystemException("'" + name + "' already exists.");
         }
-        File newFile = new File(name, currentDirectory, size);
-        currentDirectory.addChild(newFile);
+
+        int lastSlash = name.lastIndexOf('/');
+
+        if (lastSlash != -1){
+            int firstSlash = name.indexOf('/');
+            cd(name.substring(0,lastSlash));
+            File newFile = new File(name.substring(lastSlash + 1), currentDirectory, size);
+            currentDirectory.addChild(newFile);
+            while (firstSlash != -1){
+                cd("..");
+                name = name.substring(firstSlash + 1);
+                firstSlash = name.indexOf('/');
+            }
+        }
+        else {
+            File newFile = new File(name, currentDirectory, size);
+            currentDirectory.addChild(newFile);
+        }
     }
 
     /**
-     * Writes content to a file, creating it if it doesn't exist. 
-     * Supports paths like "Documents/plan. doc".
+     * Writes content to a file, creating it if it doesn't exist.
+     * Supports paths like "Documents/plan. doc"
      */
     public void echo(String content, String path) throws FileSystemException {
         // Check if path contains directory components
@@ -129,7 +145,7 @@ public class FileSystem {
     }
 
     /**
-     * Changes the current directory. 
+     * Changes the current directory
      * Supports: absolute paths (/home/user), relative paths (mydir), 
      * parent (. .), current (.), and root (/). 
      */
@@ -182,7 +198,7 @@ public class FileSystem {
     }
 
     /**
-     * Lists contents of current directory.
+     * Lists contents of current directory
      */
     public String ls() {
         StringBuilder sb = new StringBuilder();
@@ -262,7 +278,7 @@ public class FileSystem {
     }
 
     /**
-     * Searches for pattern in file using KMP algorithm. 
+     * Searches for pattern in file using KMP algorithm.
      */
     public boolean grep(String pattern, String fileName) throws FileSystemException {
         Node target = currentDirectory. getChild(fileName);
